@@ -47,3 +47,9 @@ TagManager:
   - name: Snake
     uniqueID: 1871182233
     locked: 0
+  - name: MassGainerFood
+    uniqueID: 79542193
+    locked: 0
+  - name: MassBurnerFood
+    uniqueID: 599785779
+    locked: 0
