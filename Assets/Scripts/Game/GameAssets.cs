@@ -8,6 +8,8 @@ public class GameAssets : MonoBehaviour
     public static GameAssets Instance;
 
     public Sprite snakeHeadSprite;
+    public Sprite massGainerFoodSprite;
+    public Sprite massBurnerFoodSprite;
 
     private void Awake()
     {

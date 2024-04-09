@@ -5,6 +5,9 @@ using UnityEngine;
 public class GameHandler : MonoBehaviour
 {
     private GameHandler _instance;
+    private LevelGrid _levelGrid;
+
+    [SerializeField] private Snake _snake;
 
     private void Awake()
     {
@@ -22,20 +25,8 @@ public class GameHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void InitializeSnakeHead()
-    {
-        GameObject snakeGameObject = new GameObject("Snake");
-        SpriteRenderer spriteRenderer = snakeGameObject.AddComponent<SpriteRenderer>();
-        spriteRenderer.sortingLayerName = "Snake";
-        spriteRenderer.sprite = GameAssets.Instance.snakeHeadSprite;
+        _levelGrid = new LevelGrid(new Vector2Int(20, 20), new Vector2Int(20, 20));
+        _snake.Setup(_levelGrid);
+        _levelGrid.Setup(_snake);
     }
 }
