@@ -16,10 +16,15 @@ public class LevelGrid
 
     private GameObject _currentFoodObject;
 
-    public LevelGrid(Vector2Int mgFoodPosRange, Vector2Int mbFoodPosRange)
+    private int _width, _height;
+
+    public LevelGrid(int width, int height)
     {
-        _massGainerFoodPosRange = mgFoodPosRange;
-        _massBurnerFoodPosRange = mbFoodPosRange;
+        this._width = width;
+        this._height = height;
+
+        _massGainerFoodPosRange = new Vector2Int(width, height);
+        _massBurnerFoodPosRange = new Vector2Int(width, height);
 
         _massGainerFoodObject = Resources.Load("MassGainer") as GameObject;
         _massBurnerFoodObject = Resources.Load("MassBurner") as GameObject;
@@ -69,5 +74,30 @@ public class LevelGrid
         {
             SpawnMassGainerFood();
         }
+    }
+
+    public Vector2Int ValidateGridPos(Vector2Int gridPos)
+    {
+        if(gridPos.x < 0)
+        {
+            gridPos.x = _width - 1;
+        }
+
+        if (gridPos.x > _width)
+        {
+            gridPos.x = 0;
+        }
+
+        if (gridPos.y < 0)
+        {
+            gridPos.y = _height - 1;
+        }
+
+        if(gridPos.y > _height)
+        {
+            gridPos.y = 0;
+        }
+
+        return gridPos;
     }
 }

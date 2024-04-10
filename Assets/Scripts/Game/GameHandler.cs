@@ -25,7 +25,7 @@ public class GameHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _levelGrid = new LevelGrid(new Vector2Int(20, 20), new Vector2Int(20, 20));
+        _levelGrid = new LevelGrid(20, 20);
         _snake.Setup(_levelGrid);
         _levelGrid.Setup(_snake);
     }

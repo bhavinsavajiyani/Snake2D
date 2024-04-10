@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class Snake : MonoBehaviour
 {
+    private enum State
+    {
+        Alive,
+        Dead
+    }
+
     private Vector2Int _gridPosition;
     private Vector2Int _gridMoveDirection;
 
@@ -20,6 +26,8 @@ public class Snake : MonoBehaviour
     private Stack<GameObject> _snakeBodyStack = new Stack<GameObject>();
     private GameObject _snakeBodyRef, _snakeBody;
 
+    private State _state;
+
     public void Setup(LevelGrid levelGrid)
     {
         this._levelGrid = levelGrid;
@@ -28,6 +36,8 @@ public class Snake : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
+        _state = State.Alive;
+
         _gridPosition = new Vector2Int(10, 10);
         _moveDuration = 0.5f;
         _moveTimer = _moveDuration;
@@ -41,8 +51,16 @@ public class Snake : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        InputHandling();
-        Movement();
+        switch(_state)
+        {
+            case State.Alive:
+                InputHandling();
+                Movement();
+                break;
+
+            case State.Dead:
+                break;
+        }
     }
 
     /// <summary>
@@ -98,6 +116,7 @@ public class Snake : MonoBehaviour
             _moveTimer -= _moveDuration;
             _snakeMovementPosList.Insert(0, _gridPosition);
             _gridPosition += _gridMoveDirection;
+            _gridPosition = _levelGrid.ValidateGridPos(_gridPosition);
         }
 
         transform.position = new Vector3(_gridPosition.x, _gridPosition.y, 0);
@@ -105,8 +124,16 @@ public class Snake : MonoBehaviour
 
         for (int i = 0; i < _snakeBodyStack.Count; i++)
         {
+            Vector3 gridPos = new Vector3(_gridPosition.x, _gridPosition.y, 0);
             Vector3 _snakeBodyPos = new Vector3(_snakeMovementPosList[i].x, _snakeMovementPosList[i].y, 0);
             _snakeBodyStack.ElementAt(i).transform.position = _snakeBodyPos;
+            _snakeBodyStack.ElementAt(i).transform.eulerAngles = new Vector3(0, 0, GetFacingDirection(_gridMoveDirection) - 90.0f);
+
+            if(_snakeBodyStack.ElementAt(i).transform.position == gridPos)
+            {
+                Debug.Log("GameOver...");
+                _state = State.Dead;
+            }
         }
     }
 
@@ -132,8 +159,11 @@ public class Snake : MonoBehaviour
 
     private void DestroyBodyPart()
     {
-        GameObject item = _snakeBodyStack.Pop();
-        Destroy(item);
+        if(_snakeBodyStack.Count > 0)
+        {
+            GameObject item = _snakeBodyStack.Pop();
+            Destroy(item);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -158,10 +188,7 @@ public class Snake : MonoBehaviour
                 _snakeBodyCount = 0;
             }
 
-            if(_snakeBodyCount > 0)
-            {
-               DestroyBodyPart();
-            }
+            DestroyBodyPart();
 
             Debug.Log("SnakeBodyCount: " + _snakeBodyCount);
             _levelGrid.SpawnRandomFood();
