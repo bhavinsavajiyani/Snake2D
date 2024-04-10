@@ -20,12 +20,15 @@ public class LevelGrid
     {
         _massGainerFoodPosRange = mgFoodPosRange;
         _massBurnerFoodPosRange = mbFoodPosRange;
+
+        _massGainerFoodObject = Resources.Load("MassGainer") as GameObject;
+        _massBurnerFoodObject = Resources.Load("MassBurner") as GameObject;
     }
 
     public void Setup(Snake snake)
     {
         this._snake = snake;
-        SpawnRandomFood();
+        SpawnMassGainerFood();
     }
 
     private GameObject SpawnMassGainerFood()
@@ -35,12 +38,8 @@ public class LevelGrid
                 Random.Range(2, _massGainerFoodPosRange.y)
             );
 
-        _massGainerFoodObject = new GameObject("MassGainer", typeof(SpriteRenderer));
-        _massGainerFoodObject.GetComponent<SpriteRenderer>().sprite = GameAssets.Instance.massGainerFoodSprite;
-        _massGainerFoodObject.GetComponent<SpriteRenderer>().sortingLayerName = "MassGainerFood";
-        _massGainerFoodObject.transform.position = new Vector3(_massGainerFoodPosition.x, _massGainerFoodPosition.y, 0);
-
-        _currentFoodObject = _massGainerFoodObject;
+        _currentFoodObject = GameObject.Instantiate(_massGainerFoodObject, new Vector3(_massGainerFoodPosition.x, _massGainerFoodPosition.y, 0), Quaternion.identity);
+        _currentFoodObject.name = "MassGainer";
         return _currentFoodObject;
     }
 
@@ -51,49 +50,24 @@ public class LevelGrid
                 Random.Range(2, _massBurnerFoodPosRange.y)
             );
 
-        _massBurnerFoodObject = new GameObject("MassBurner", typeof(SpriteRenderer));
-        _massBurnerFoodObject.GetComponent<SpriteRenderer>().sprite = GameAssets.Instance.massBurnerFoodSprite;
-        _massBurnerFoodObject.GetComponent<SpriteRenderer>().sortingLayerName = "MassBurnerFood";
-        _massBurnerFoodObject.transform.position = new Vector3(_massBurnerFoodPosition.x, _massBurnerFoodPosition.y, 0);
-
-        _currentFoodObject = _massBurnerFoodObject;
+        _currentFoodObject = GameObject.Instantiate(_massBurnerFoodObject, new Vector3(_massBurnerFoodPosition.x, _massBurnerFoodPosition.y, 0), Quaternion.identity);
+        _currentFoodObject.name = "MassBurner";
         return _currentFoodObject;
     }
 
-    public void OnSnakeEatingMassGainerFood(Vector2Int snakePosition)
+    public void SpawnRandomFood()
     {
-        if(snakePosition ==  _massGainerFoodPosition)
+        int rand = Random.Range(1, 11);
+        Debug.Log("Rand: " + rand);
+
+        if (rand < 5)
         {
-            Object.Destroy(_massGainerFoodObject);
-            SpawnRandomFood();
+            SpawnMassBurnerFood();
         }
-    }
 
-    public void OnSnakeEatingMassBurnerFood(Vector2Int snakePosition)
-    {
-        if(snakePosition == _massBurnerFoodPosition)
+        else
         {
-            Object.Destroy(_massBurnerFoodObject);
-            SpawnRandomFood();
-        }
-    }
-
-    private void SpawnRandomFood()
-    {
-        if(_currentFoodObject == null)
-        {
-            int rand = Random.Range(1, 11);
-            Debug.Log("Rand: " + rand);
-
-            if (rand < 5)
-            {
-                SpawnMassBurnerFood();
-            }
-
-            else
-            {
-                SpawnMassGainerFood();
-            }
+            SpawnMassGainerFood();
         }
     }
 }

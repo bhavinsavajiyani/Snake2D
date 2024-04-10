@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Snake : MonoBehaviour
@@ -13,6 +14,11 @@ public class Snake : MonoBehaviour
     // Amount of time between moves
     private float _moveDuration;
     private LevelGrid _levelGrid;
+
+    private int _snakeBodyCount = 0;
+    private List<Vector2Int> _snakeMovementPosList = new List<Vector2Int>();
+    private Stack<GameObject> _snakeBodyStack = new Stack<GameObject>();
+    private GameObject _snakeBodyRef, _snakeBody;
 
     public void Setup(LevelGrid levelGrid)
     {
@@ -28,6 +34,8 @@ public class Snake : MonoBehaviour
 
         // By Default, the snake would move right.
         _gridMoveDirection = new Vector2Int(1, 0);
+
+        _snakeBodyRef = Resources.Load("SnakeBody") as GameObject;
     }
 
     // Update is called once per frame
@@ -87,15 +95,19 @@ public class Snake : MonoBehaviour
         _moveTimer += Time.deltaTime;
         if (_moveTimer >= _moveDuration)
         {
-            _gridPosition += _gridMoveDirection;
             _moveTimer -= _moveDuration;
+            _snakeMovementPosList.Insert(0, _gridPosition);
+            _gridPosition += _gridMoveDirection;
         }
 
         transform.position = new Vector3(_gridPosition.x, _gridPosition.y, 0);
         transform.eulerAngles = new Vector3(0, 0, GetFacingDirection(_gridMoveDirection) - 90.0f);
 
-        _levelGrid.OnSnakeEatingMassGainerFood(_gridPosition);
-        _levelGrid.OnSnakeEatingMassBurnerFood(_gridPosition);
+        for (int i = 0; i < _snakeBodyStack.Count; i++)
+        {
+            Vector3 _snakeBodyPos = new Vector3(_snakeMovementPosList[i].x, _snakeMovementPosList[i].y, 0);
+            _snakeBodyStack.ElementAt(i).transform.position = _snakeBodyPos;
+        }
     }
 
     private float GetFacingDirection(Vector2Int direction)
@@ -108,5 +120,51 @@ public class Snake : MonoBehaviour
     public Vector2Int GetGridPosition()
     {
         return _gridPosition;
+    }
+
+    private void CreateSnakeBody()
+    {
+        _snakeBody = Instantiate(_snakeBodyRef, new Vector3(GetGridPosition().x, GetGridPosition().y, 0), Quaternion.identity);
+        _snakeBody.name = "SnakeBody";
+        _snakeBody.GetComponent<SpriteRenderer>().sortingOrder = -_snakeBodyStack.Count;
+        _snakeBodyStack.Push(_snakeBody);
+    }
+
+    private void DestroyBodyPart()
+    {
+        GameObject item = _snakeBodyStack.Pop();
+        Destroy(item);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag("MassGainer"))
+        {
+            CreateSnakeBody();
+            Destroy(collision.gameObject);
+            _snakeBodyCount++;
+            Debug.Log("SnakeBodyCount: " + _snakeBodyCount);
+            _levelGrid.SpawnRandomFood();
+        }
+
+        if(collision.CompareTag("MassBurner"))
+        {
+            Destroy(collision.gameObject);
+
+            _snakeBodyCount--;
+
+            if(_snakeBodyCount < 0)
+            {
+                _snakeBodyCount = 0;
+            }
+
+            if(_snakeBodyCount > 0)
+            {
+               DestroyBodyPart();
+            }
+
+            Debug.Log("SnakeBodyCount: " + _snakeBodyCount);
+            _levelGrid.SpawnRandomFood();
+        }
     }
 }
