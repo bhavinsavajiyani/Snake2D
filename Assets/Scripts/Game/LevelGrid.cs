@@ -16,16 +16,24 @@ public class LevelGrid
 
     private GameObject _currentFoodObject;
 
-    public LevelGrid(Vector2Int mgFoodPosRange, Vector2Int mbFoodPosRange)
+    private int _width, _height;
+
+    public LevelGrid(int width, int height)
     {
-        _massGainerFoodPosRange = mgFoodPosRange;
-        _massBurnerFoodPosRange = mbFoodPosRange;
+        this._width = width;
+        this._height = height;
+
+        _massGainerFoodPosRange = new Vector2Int(width, height);
+        _massBurnerFoodPosRange = new Vector2Int(width, height);
+
+        _massGainerFoodObject = Resources.Load("MassGainer") as GameObject;
+        _massBurnerFoodObject = Resources.Load("MassBurner") as GameObject;
     }
 
     public void Setup(Snake snake)
     {
         this._snake = snake;
-        SpawnRandomFood();
+        SpawnMassGainerFood();
     }
 
     private GameObject SpawnMassGainerFood()
@@ -35,12 +43,8 @@ public class LevelGrid
                 Random.Range(2, _massGainerFoodPosRange.y)
             );
 
-        _massGainerFoodObject = new GameObject("MassGainer", typeof(SpriteRenderer));
-        _massGainerFoodObject.GetComponent<SpriteRenderer>().sprite = GameAssets.Instance.massGainerFoodSprite;
-        _massGainerFoodObject.GetComponent<SpriteRenderer>().sortingLayerName = "MassGainerFood";
-        _massGainerFoodObject.transform.position = new Vector3(_massGainerFoodPosition.x, _massGainerFoodPosition.y, 0);
-
-        _currentFoodObject = _massGainerFoodObject;
+        _currentFoodObject = GameObject.Instantiate(_massGainerFoodObject, new Vector3(_massGainerFoodPosition.x, _massGainerFoodPosition.y, 0), Quaternion.identity);
+        _currentFoodObject.name = "MassGainer";
         return _currentFoodObject;
     }
 
@@ -51,49 +55,49 @@ public class LevelGrid
                 Random.Range(2, _massBurnerFoodPosRange.y)
             );
 
-        _massBurnerFoodObject = new GameObject("MassBurner", typeof(SpriteRenderer));
-        _massBurnerFoodObject.GetComponent<SpriteRenderer>().sprite = GameAssets.Instance.massBurnerFoodSprite;
-        _massBurnerFoodObject.GetComponent<SpriteRenderer>().sortingLayerName = "MassBurnerFood";
-        _massBurnerFoodObject.transform.position = new Vector3(_massBurnerFoodPosition.x, _massBurnerFoodPosition.y, 0);
-
-        _currentFoodObject = _massBurnerFoodObject;
+        _currentFoodObject = GameObject.Instantiate(_massBurnerFoodObject, new Vector3(_massBurnerFoodPosition.x, _massBurnerFoodPosition.y, 0), Quaternion.identity);
+        _currentFoodObject.name = "MassBurner";
         return _currentFoodObject;
     }
 
-    public void OnSnakeEatingMassGainerFood(Vector2Int snakePosition)
+    public void SpawnRandomFood()
     {
-        if(snakePosition ==  _massGainerFoodPosition)
+        int rand = Random.Range(1, 11);
+        Debug.Log("Rand: " + rand);
+
+        if (rand < 5)
         {
-            Object.Destroy(_massGainerFoodObject);
-            SpawnRandomFood();
+            SpawnMassBurnerFood();
+        }
+
+        else
+        {
+            SpawnMassGainerFood();
         }
     }
 
-    public void OnSnakeEatingMassBurnerFood(Vector2Int snakePosition)
+    public Vector2Int ValidateGridPos(Vector2Int gridPos)
     {
-        if(snakePosition == _massBurnerFoodPosition)
+        if(gridPos.x < 0)
         {
-            Object.Destroy(_massBurnerFoodObject);
-            SpawnRandomFood();
+            gridPos.x = _width - 1;
         }
-    }
 
-    private void SpawnRandomFood()
-    {
-        if(_currentFoodObject == null)
+        if (gridPos.x > _width)
         {
-            int rand = Random.Range(1, 11);
-            Debug.Log("Rand: " + rand);
-
-            if (rand < 5)
-            {
-                SpawnMassBurnerFood();
-            }
-
-            else
-            {
-                SpawnMassGainerFood();
-            }
+            gridPos.x = 0;
         }
+
+        if (gridPos.y < 0)
+        {
+            gridPos.y = _height - 1;
+        }
+
+        if(gridPos.y > _height)
+        {
+            gridPos.y = 0;
+        }
+
+        return gridPos;
     }
 }
