@@ -39,7 +39,7 @@ public class Snake : MonoBehaviour
         _state = State.Alive;
 
         _gridPosition = new Vector2Int(10, 10);
-        _moveDuration = 0.5f;
+        _moveDuration = 0.24f;
         _moveTimer = _moveDuration;
 
         // By Default, the snake would move right.
@@ -153,6 +153,7 @@ public class Snake : MonoBehaviour
     {
         _snakeBody = Instantiate(_snakeBodyRef, new Vector3(GetGridPosition().x, GetGridPosition().y, 0), Quaternion.identity);
         _snakeBody.name = "SnakeBody";
+        _snakeBody.transform.parent = transform;
         _snakeBody.GetComponent<SpriteRenderer>().sortingOrder = -_snakeBodyStack.Count;
         _snakeBodyStack.Push(_snakeBody);
     }
@@ -175,6 +176,7 @@ public class Snake : MonoBehaviour
             _snakeBodyCount++;
             Debug.Log("SnakeBodyCount: " + _snakeBodyCount);
             _levelGrid.SpawnRandomFood();
+            GameHandler.AddScore(Random.Range(10, 101));
         }
 
         if(collision.CompareTag("MassBurner"))
@@ -192,6 +194,7 @@ public class Snake : MonoBehaviour
 
             Debug.Log("SnakeBodyCount: " + _snakeBodyCount);
             _levelGrid.SpawnRandomFood();
+            GameHandler.DecreaseScore(Random.Range(10, 60));
         }
     }
 }
