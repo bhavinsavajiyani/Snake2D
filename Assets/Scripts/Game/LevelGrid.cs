@@ -80,7 +80,7 @@ public class LevelGrid
     {
         if(gridPos.x < 0)
         {
-            gridPos.x = _width - 1;
+            gridPos.x = _width;
         }
 
         if (gridPos.x > _width)
@@ -90,7 +90,7 @@ public class LevelGrid
 
         if (gridPos.y < 0)
         {
-            gridPos.y = _height - 1;
+            gridPos.y = _height;
         }
 
         if(gridPos.y > _height)
