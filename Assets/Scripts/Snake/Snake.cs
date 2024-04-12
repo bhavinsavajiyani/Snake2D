@@ -28,6 +28,8 @@ public class Snake : MonoBehaviour
 
     private State _state;
 
+    [SerializeField] private GameObject _gameOverPanel;
+
     public void Setup(LevelGrid levelGrid)
     {
         this._levelGrid = levelGrid;
@@ -46,6 +48,8 @@ public class Snake : MonoBehaviour
         _gridMoveDirection = new Vector2Int(1, 0);
 
         _snakeBodyRef = Resources.Load("SnakeBody") as GameObject;
+
+        _gameOverPanel.SetActive(false);
     }
 
     // Update is called once per frame
@@ -54,11 +58,23 @@ public class Snake : MonoBehaviour
         switch(_state)
         {
             case State.Alive:
+
+                if(GameHandler.GetScore() > 1000)
+                {
+                    _moveDuration = 0.18f;
+                }
+
+                else if(GameHandler.GetScore() > 2000)
+                {
+                    _moveDuration = 0.12f;
+                }
+
                 InputHandling();
                 Movement();
                 break;
 
             case State.Dead:
+                _gameOverPanel.SetActive(true);
                 break;
         }
     }
@@ -165,6 +181,16 @@ public class Snake : MonoBehaviour
             GameObject item = _snakeBodyStack.Pop();
             Destroy(item);
         }
+    }
+
+    public void OnPlayAgainClicked()
+    {
+        SceneLoader.LoadScene(SceneLoader.SceneName.Game);
+    }
+
+    public void OnMainMenuClicked()
+    {
+        SceneLoader.LoadScene(SceneLoader.SceneName.MainMenu);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

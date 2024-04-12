@@ -13,9 +13,11 @@ public class GameHandler : MonoBehaviour
 
     private void Awake()
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             _instance = this;
+            _score = 0;
+            Time.timeScale = 1;
         }
 
         else
@@ -32,6 +34,22 @@ public class GameHandler : MonoBehaviour
         _levelGrid.Setup(_snake);
     }
 
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            if(Time.timeScale == 0)
+            {
+                ResumeGame();
+            }
+
+            else
+            {
+                PauseGame();
+            }
+        }
+    }
+
     public static int GetScore()
     {
         return _score;
@@ -46,9 +64,21 @@ public class GameHandler : MonoBehaviour
     {
         _score -= scoreToDecrease;
 
-        if(_score < 0)
+        if (_score < 0)
         {
             _score = 0;
         }
+    }
+
+    public static void ResumeGame()
+    {
+        PauseWindow.HideWindow();
+        Time.timeScale = 1;
+    }
+
+    public static void PauseGame()
+    {
+        PauseWindow.ShowPauseWindow();
+        Time.timeScale = 0;
     }
 }
