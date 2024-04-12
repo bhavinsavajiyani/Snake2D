@@ -74,6 +74,7 @@ public class Snake : MonoBehaviour
                 break;
 
             case State.Dead:
+                ScoreWindow.TrySetNewHighScore(GameHandler.GetScore());
                 _gameOverPanel.SetActive(true);
                 break;
         }
@@ -133,6 +134,7 @@ public class Snake : MonoBehaviour
             _snakeMovementPosList.Insert(0, _gridPosition);
             _gridPosition += _gridMoveDirection;
             _gridPosition = _levelGrid.ValidateGridPos(_gridPosition);
+            SoundManager.Instance.PlaySound(SoundManager.SoundType.SnakeMove);
         }
 
         transform.position = new Vector3(_gridPosition.x, _gridPosition.y, 0);
@@ -149,6 +151,7 @@ public class Snake : MonoBehaviour
             {
                 Debug.Log("GameOver...");
                 _state = State.Dead;
+                SoundManager.Instance.PlaySound(SoundManager.SoundType.SnakeDie);
             }
         }
     }
@@ -185,11 +188,13 @@ public class Snake : MonoBehaviour
 
     public void OnPlayAgainClicked()
     {
+        SoundManager.Instance.PlaySound(SoundManager.SoundType.ButtonClick);
         SceneLoader.LoadScene(SceneLoader.SceneName.Game);
     }
 
     public void OnMainMenuClicked()
     {
+        SoundManager.Instance.PlaySound(SoundManager.SoundType.ButtonClick);
         SceneLoader.LoadScene(SceneLoader.SceneName.MainMenu);
     }
 
@@ -201,6 +206,7 @@ public class Snake : MonoBehaviour
             Destroy(collision.gameObject);
             _snakeBodyCount++;
             Debug.Log("SnakeBodyCount: " + _snakeBodyCount);
+            SoundManager.Instance.PlaySound(SoundManager.SoundType.SnakeEat);
             _levelGrid.SpawnRandomFood();
             GameHandler.AddScore(Random.Range(10, 101));
         }
@@ -219,6 +225,7 @@ public class Snake : MonoBehaviour
             DestroyBodyPart();
 
             Debug.Log("SnakeBodyCount: " + _snakeBodyCount);
+            SoundManager.Instance.PlaySound(SoundManager.SoundType.SnakeEat);
             _levelGrid.SpawnRandomFood();
             GameHandler.DecreaseScore(Random.Range(10, 60));
         }
